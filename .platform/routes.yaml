@@ -11,3 +11,11 @@
     type: upstream
     upstream: "strapi:http"
     id: "api"
+
+"https://www.{default}/":
+    type: upstream
+    upstream: "frontend:http"
+
+"https://{default}/":
+    type: redirect
+    to: "https://www.{default}/"

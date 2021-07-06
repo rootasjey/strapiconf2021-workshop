@@ -1,0 +1,28 @@
+# client/.platform.app.yaml
+
+name: frontend
+
+type: nodejs:12
+
+build:
+    flavor: none
+
+dependencies:
+    nodejs:
+        yarn: "1.22.5"
+
+hooks:
+    build: |
+        # Install dependencies with yarn.
+        yarn --ignore-optional --frozen-lockfile
+
+web:
+    commands: 
+        start: REACT_APP_BACKEND_URL=$BACKEND_URL yarn start
+
+disk: 1024
+
+mounts:
+    '/.cache':
+        source: local
+        source_path: cache
