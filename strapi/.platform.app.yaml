@@ -27,6 +27,14 @@ hooks:
 web:
     commands:
         start: NODE_ENV=production yarn start
+    locations:
+        # For serving the generated OpenAPI specification as part of the documentation.
+        "/docs/spec":
+            root: "extensions/documentation/documentation/1.0.0"
+            allow: true
+            scripts: false
+            index:
+                - full_documentation.json
 
 disk: 1024
 
