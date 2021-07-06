@@ -9,6 +9,9 @@ dependencies:
     nodejs:
         yarn: "1.22.5"
 
+relationships:
+    database: "dbpostgres:postgresql"
+
 hooks:
     build: |
         # Install dependencies with yarn.
