@@ -15,6 +15,12 @@ hooks:
     build: |
         # Install dependencies with yarn.
         yarn --ignore-optional --frozen-lockfile
+    deploy: |
+        set -e
+        if [ "$PLATFORM_BRANCH" != master ]; then
+            export CI=true && yarn test
+        fi 
+
 
 web:
     commands: 
