@@ -45,7 +45,7 @@
     that avoids logging every request
 -->
 
-<schema name="example" version="1.6">
+<schema name="example-DIH-solr" version="1.6">
   <!-- attribute "name" is the name of this schema and is only used for display purposes.
        version="x.y" is Solr's version number for the schema syntax and 
        semantics.  It should not normally be changed by applications.
@@ -61,14 +61,14 @@
             to off for version >= 1.4
        1.5: omitNorms defaults to true for primitive field types 
             (int, float, boolean, string...)
-       1.6: useDocValuesAsStored defaults to true.
+       1.6: useDocValuesAsStored defaults to true.            
      -->
 
 
-   <!-- Valid attributes for fields:
+    <!-- Valid attributes for fields:
      name: mandatory - the name for the field
      type: mandatory - the name of a field type from the 
-       fieldTypes
+       fieldTypes section
      indexed: true if this field should be indexed (searchable or sortable)
      stored: true if this field should be retrievable
      docValues: true if this field should have doc values. Doc values are
@@ -94,13 +94,11 @@
        This will increase storage costs.
      termOffsets: Store offset information with the term vector. This 
        will increase storage costs.
-     termPayloads: Store payload information with the term vector. This
-       will increase storage costs.
      required: The field is required.  It will throw an error if the
        value does not exist
      default: a value that should be used if no value is specified
        when adding a document.
-   -->
+    -->
 
    <!-- field names should consist of alphanumeric or underscore characters only and
       not start with a digit.  This is not currently strictly enforced,
@@ -112,29 +110,22 @@
    <!-- If you remove this field, you must _also_ disable the update log in solrconfig.xml
       or Solr won't start. _version_ and update log are required for SolrCloud
    --> 
-   <!-- doc values are enabled by default for primitive types such as long so we don't index the version field  -->
-   <field name="_version_" type="plong" indexed="false" stored="false"/>
+   <field name="_version_" type="plong" indexed="true" stored="true"/>
    
    <!-- points to the root document of a block of nested documents. Required for nested
       document support, may be removed otherwise
    -->
-   <field name="_root_" type="string" indexed="true" stored="false" docValues="false" />
+   <field name="_root_" type="string" indexed="true" stored="false"/>
 
    <!-- Only remove the "id" field if you have a very good reason to. While not strictly
      required, it is highly recommended. A <uniqueKey> is present in almost all Solr 
      installations. See the <uniqueKey> declaration below where <uniqueKey> is set to "id".
-     Do NOT change the type and apply index-time analysis to the <uniqueKey> as it will likely 
-     make routing in SolrCloud and document replacement in general fail. Limited _query_ time
-     analysis is possible as long as the indexing process is guaranteed to index the term
-     in a compatible way. Any analysis applied to the <uniqueKey> should _not_ produce multiple
-     tokens
    -->   
    <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false" /> 
-
-   <field name="pre" type="preanalyzed" indexed="true" stored="true"/>
+        
    <field name="sku" type="text_en_splitting_tight" indexed="true" stored="true" omitNorms="true"/>
    <field name="name" type="text_general" indexed="true" stored="true"/>
-   <field name="manu" type="text_gen_sort" indexed="true" stored="true" omitNorms="true" multiValued="false"/>
+   <field name="manu" type="text_general" indexed="true" stored="true" omitNorms="true"/>
    <field name="cat" type="string" indexed="true" stored="true" multiValued="true"/>
    <field name="features" type="text_general" indexed="true" stored="true" multiValued="true"/>
    <field name="includes" type="text_general" indexed="true" stored="true" termVectors="true" termPositions="true" termOffsets="true" />
@@ -154,11 +145,11 @@
        "content_type": From the HTTP headers of incoming stream
        "resourcename": From SolrCell request param resource.name
    -->
-   <field name="title" type="text_gen_sort" indexed="true" stored="true" multiValued="true"/>
-   <field name="subject" type="text_gen_sort" indexed="true" stored="true" multiValued="false"/>
+   <field name="title" type="text_general" indexed="true" stored="true" multiValued="true"/>
+   <field name="subject" type="text_general" indexed="true" stored="true"/>
    <field name="description" type="text_general" indexed="true" stored="true"/>
    <field name="comments" type="text_general" indexed="true" stored="true"/>
-   <field name="author" type="text_gen_sort" indexed="true" stored="true" multiValued="false"/>
+   <field name="author" type="text_general" indexed="true" stored="true"/>
    <field name="keywords" type="text_general" indexed="true" stored="true"/>
    <field name="category" type="text_general" indexed="true" stored="true"/>
    <field name="resourcename" type="text_general" indexed="true" stored="true"/>
@@ -166,7 +157,6 @@
    <field name="content_type" type="string" indexed="true" stored="true" multiValued="true"/>
    <field name="last_modified" type="pdate" indexed="true" stored="true"/>
    <field name="links" type="string" indexed="true" stored="true" multiValued="true"/>
-   <field name="_src_" type="string" indexed="false" stored="true"/>
 
    <!-- Main body of document extracted by SolrCell.
         NOTE: This field is not indexed by default, since it is also copied to "text"
@@ -185,13 +175,26 @@
 
    <!-- non-tokenized version of manufacturer to make it easier to sort or group
         results by manufacturer.  copied from "manu" via copyField -->
-   <field name="manu_exact" type="string" indexed="true" stored="false" docValues="false" />
+   <field name="manu_exact" type="string" indexed="true" stored="false"/>
 
    <field name="payloads" type="payloads" indexed="true" stored="true"/>
 
 
+   <!--
+     Some fields such as popularity and manu_exact could be modified to
+     leverage doc values:
+     <field name="popularity" type="pint" indexed="true" stored="true" docValues="true" />
+     <field name="manu_exact" type="string" indexed="false" stored="false" docValues="true" />
+     <field name="cat" type="string" indexed="true" stored="true" docValues="true" multiValued="true"/>
+
+
+     Although it would make indexing slightly slower and the index bigger, it
+     would also make the index faster to load, more memory-efficient and more
+     NRT-friendly.
+     -->
+
    <!-- Dynamic field definitions allow using convention over configuration
-       for fields via the specification of patterns to match field names. 
+       for fields via the specification of patterns to match field names.
        EXAMPLE:  name="*_i" will match any field ending in _i (like myid_i, z_i)
        RESTRICTION: the glob-like pattern in the name attribute must have
        a "*" only at the start or the end.  -->
@@ -214,6 +217,9 @@
    <dynamicField name="*_d"  type="pdouble" indexed="true"  stored="true"/>
    <dynamicField name="*_ds" type="pdouble" indexed="true"  stored="true"  multiValued="true"/>
 
+   <!-- Type used to index the lat and lon components for the "location" FieldType -->
+   <dynamicField name="*_coordinate"  type="pdouble" indexed="true"  stored="false" />
+
    <dynamicField name="*_dt"  type="pdate"    indexed="true"  stored="true"/>
    <dynamicField name="*_dts" type="pdate"    indexed="true"  stored="true" multiValued="true"/>
    <dynamicField name="*_p"  type="location" indexed="true" stored="true"/>
@@ -230,6 +236,8 @@
         alternately, change the type="ignored" to some other type e.g. "text" if you want 
         unknown fields indexed and/or stored by default --> 
    <!--dynamicField name="*" type="ignored" multiValued="true" /-->
+   
+
 
 
  <!-- Field to use to determine and enforce document uniqueness. 
@@ -260,20 +268,20 @@
    <copyField source="content_type" dest="text"/>
    <copyField source="resourcename" dest="text"/>
    <copyField source="url" dest="text"/>
-   
+
    <!-- Create a string version of author for faceting -->
    <copyField source="author" dest="author_s"/>
-  
-   <!-- Above, multiple source fields are copied to the [text] field. 
-    Another way to map multiple source fields to the same 
-    destination field is to use the dynamic field syntax. 
+
+   <!-- Above, multiple source fields are copied to the [text] field.
+    Another way to map multiple source fields to the same
+    destination field is to use the dynamic field syntax.
     copyField also supports a maxChars to copy setting.  -->
-     
+
    <!-- <copyField source="*_t" dest="text" maxChars="3000"/> -->
 
    <!-- copy name to alphaNameSort, a field designed for sorting by name -->
    <!-- <copyField source="name" dest="alphaNameSort"/> -->
- 
+
   
     <!-- field type definitions. The "name" attribute is
        just a label to be used by field definitions.  The "class"
@@ -292,7 +300,7 @@
     <!-- sortMissingLast and sortMissingFirst attributes are optional attributes are
          currently supported on types that are sorted internally as strings
          and on numeric types.
-       This includes "string", "boolean", "pint", "pfloat", "plong", "pdate", "pdouble".
+	     This includes "string", "boolean", "pint", "pfloat", "plong", "pdate", "pdouble".
        - If sortMissingLast="true", then a sort on this field will cause documents
          without the field to come after documents with the field,
          regardless of the requested sort order (asc or desc).
@@ -302,7 +310,7 @@
        - If sortMissingLast="false" and sortMissingFirst="false" (the default),
          then default lucene sorting will be used which places docs without the
          field first in an ascending sort and last in a descending sort.
-    -->    
+    -->
 
     <!--
       Numeric field types that index values using KD-trees.
@@ -338,11 +346,10 @@
                       
          Consult the DatePointField javadocs for more information.
       -->
-      
     <!-- KD-tree versions of date fields -->
     <fieldType name="pdate" class="solr.DatePointField" docValues="true"/>
     <fieldType name="pdates" class="solr.DatePointField" docValues="true" multiValued="true"/>
-
+    
     <!--Binary data type. The data should be sent/retrieved in as Base64 encoded Strings -->
     <fieldType name="binary" class="solr.BinaryField"/>
 
@@ -386,21 +393,6 @@
       </analyzer>
     </fieldType>
 
-    <!-- A text type for English text where stopwords and synonyms are managed using the REST API -->
-    <fieldType name="managed_en" class="solr.TextField" positionIncrementGap="100">
-      <analyzer type="index">
-        <tokenizer class="solr.StandardTokenizerFactory"/>
-        <filter class="solr.ManagedStopFilterFactory" managed="english" />
-        <filter class="solr.ManagedSynonymGraphFilterFactory" managed="english" />
-        <filter class="solr.FlattenGraphFilterFactory"/>
-      </analyzer>
-      <analyzer type="query">
-        <tokenizer class="solr.StandardTokenizerFactory"/>
-        <filter class="solr.ManagedStopFilterFactory" managed="english" />
-        <filter class="solr.ManagedSynonymGraphFilterFactory" managed="english" />
-      </analyzer>
-    </fieldType>
-
     <!-- A general text field that has reasonable, generic
          cross-language defaults: it tokenizes with StandardTokenizer,
    removes stop words from case-insensitive "stopwords.txt"
@@ -414,28 +406,6 @@
         <filter class="solr.SynonymGraphFilterFactory" synonyms="index_synonyms.txt" ignoreCase="true" expand="false"/>
         <filter class="solr.FlattenGraphFilterFactory"/>
         -->
-        <filter class="solr.LowerCaseFilterFactory"/>
-      </analyzer>
-      <analyzer type="query">
-        <tokenizer class="solr.StandardTokenizerFactory"/>
-        <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" />
-        <filter class="solr.SynonymGraphFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
-        <filter class="solr.LowerCaseFilterFactory"/>
-      </analyzer>
-    </fieldType>
-    
-    <!-- SortableTextField generaly functions exactly like TextField,
-         except that it supports, and by default uses, docValues for sorting (or faceting)
-         on the first 1024 characters of the original field values (which is configurable).
-         
-         This makes it a bit more useful then TextField in many situations, but the trade-off
-         is that it takes up more space on disk; which is why it's not used in place of TextField
-         for every fieldType in this _default schema.
-	  -->
-    <fieldType name="text_gen_sort" class="solr.SortableTextField" positionIncrementGap="100" multiValued="true">
-      <analyzer type="index">
-        <tokenizer class="solr.StandardTokenizerFactory"/>
-        <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" />
         <filter class="solr.LowerCaseFilterFactory"/>
       </analyzer>
       <analyzer type="query">
@@ -696,8 +666,8 @@
      -->
     <fieldType name="point" class="solr.PointType" dimension="2" subFieldSuffix="_d"/>
 
-    <!-- A specialized field for geospatial search filters and distance sorting. -->
-    <fieldType name="location" class="solr.LatLonPointSpatialField" docValues="true"/>
+    <!-- A specialized field for geospatial search. If indexed, this fieldType must not be multivalued. -->
+    <fieldType name="location" class="solr.LatLonType" subFieldSuffix="_coordinate"/>
 
     <!-- An alternative geospatial field type new to Solr 4.  It supports multiValued and polygon shapes.
       For more information about this and other Spatial fields new to Solr 4, see:
@@ -705,12 +675,6 @@
     -->
     <fieldType name="location_rpt" class="solr.SpatialRecursivePrefixTreeFieldType"
         geo="true" distErrPct="0.025" maxDistErr="0.001" distanceUnits="kilometers" />
-
-    <!-- Spatial rectangle (bounding box) field. It supports most spatial predicates, and has
-     special relevancy modes: score=overlapRatio|area|area2D (local-param to the query).  DocValues is recommended for
-     relevancy. -->
-    <fieldType name="bbox" class="solr.BBoxField"
-               geo="true" distanceUnits="kilometers" numberType="pdouble" />
 
    <!-- Money/currency field type. See http://wiki.apache.org/solr/MoneyFieldType
         Parameters:
@@ -847,17 +811,7 @@
         <!-- more aggressive: <filter class="solr.SnowballPorterFilterFactory" language="Spanish"/> -->
       </analyzer>
     </fieldType>
-
-    <!-- Estonian -->
-    <fieldType name="text_et" class="solr.TextField" positionIncrementGap="100">
-      <analyzer>
-        <tokenizer class="solr.StandardTokenizerFactory"/>
-        <filter class="solr.LowerCaseFilterFactory"/>
-        <filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords_et.txt" />
-        <filter class="solr.SnowballPorterFilterFactory" language="Estonian"/>
-      </analyzer>
-    </fieldType>
-
+    
     <!-- Basque -->
     <fieldType name="text_eu" class="solr.TextField" positionIncrementGap="100">
       <analyzer> 
@@ -1174,15 +1128,7 @@
         <filter class="solr.SnowballPorterFilterFactory" language="Turkish"/>
       </analyzer>
     </fieldType>
-
-    <!-- Pre-analyzed field type, allows inserting arbitrary token streams and stored values. -->
-    <fieldType name="preanalyzed" class="solr.PreAnalyzedField">
-      <!-- PreAnalyzedField's builtin index analyzer just decodes the pre-analyzed token stream. -->
-      <analyzer type="query">
-        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-      </analyzer>
-    </fieldType>
-
+  
   <!-- Similarity is the scoring routine for each document vs. a query.
        A custom Similarity or SimilarityFactory may be specified here, but 
        the default is fine for most applications.  
