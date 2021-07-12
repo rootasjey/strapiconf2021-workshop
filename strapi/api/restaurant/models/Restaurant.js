@@ -1,5 +1,8 @@
 'use strict';
 
+const solr = require("solr-node");
+const config = require("platformsh-config").config();
+
 /**
  * Lifecycle callbacks for the `Restaurant` model.
  */
@@ -14,6 +17,17 @@ module.exports = {
         before: {},
         after: result
       });
+
+      const client = new solr(config.formattedCredentials("solr", "solr-node"));
+
+      // Add a document.
+      const addResult = await client.update({
+        id: 123,
+        ...data,
+      });
+
+      // Flush writes so that we can query against them.
+      await client.softCommit();
     },
     async beforeUpdate(params, data){
       const [previous_] = await strapi.services.restaurant.find(params);
