@@ -1,6 +1,7 @@
 'use strict';
 
 const config = require("platformsh-config").config();
+const solr = require("solr-node");
 
 /**
  * Lifecycle callbacks for the `Restaurant` model.
