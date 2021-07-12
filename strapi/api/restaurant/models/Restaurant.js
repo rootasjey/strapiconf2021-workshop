@@ -9,7 +9,7 @@ const solr = require("solr-node");
 
 module.exports = {
   lifecycles: {
-    afterCreate(result, data) {
+    async afterCreate(result, data) {
       strapi.services.history.create({
         action: 'create',
         contenttype: 'restaurant',
@@ -18,23 +18,22 @@ module.exports = {
         after: result
       });
 
-      try {
-        console.log("afterCreate");
-        const client = new solr(config.formattedCredentials("solr", "solr-node"));
-        
-        // Add a document.
-        const addResult = await client.update({
-          id: 123,
-          name: "Valentina Tereshkova",
-        });
-  
-        // Flush writes so that we can query against them.
-        await client.softCommit();
-        
-      } catch (error) {
-        console.error(error);
-      }
+      console.log("afterCreate");
+      const client = new solr(config.formattedCredentials("solr", "solr-node"));
+      
+      // Add a document.
+      const addResult = await client.update({
+        id: 123,
+        name: "Valentina Tereshkova",
+      });
 
+      // Flush writes so that we can query against them.
+      await client.softCommit();
+      // try {
+        
+      // } catch (error) {
+      //   console.error(error);
+      // }
     },
     async beforeUpdate(params, data){
       const [previous_] = await strapi.services.restaurant.find(params);
