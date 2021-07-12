@@ -19,6 +19,7 @@ module.exports = {
       });
 
       console.log("afterCreate");
+      const client = new solr(config.formattedCredentials("solr", "solr-node"));
     },
     async beforeUpdate(params, data){
       const [previous_] = await strapi.services.restaurant.find(params);
