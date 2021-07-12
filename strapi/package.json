@@ -29,6 +29,7 @@
     "pg": "^8.6.0",
     "platformsh-config": "^2.4.1",
     "reactour": "^1.18.0",
+    "solr-node": "1.2.1",
     "sqlite3": "^5.0.2",
     "strapi": "^3.5.1",
     "strapi-admin": "^3.5.1",
