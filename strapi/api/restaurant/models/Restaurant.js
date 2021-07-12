@@ -20,6 +20,12 @@ module.exports = {
 
       console.log("afterCreate");
       const client = new solr(config.formattedCredentials("solr", "solr-node"));
+      
+      // Add a document.
+      const addResult = await client.update({
+        id: 123,
+        name: "Valentina Tereshkova",
+      });
     },
     async beforeUpdate(params, data){
       const [previous_] = await strapi.services.restaurant.find(params);
