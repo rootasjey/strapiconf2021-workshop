@@ -11,6 +11,7 @@ dependencies:
 
 relationships:
     database: "dbpostgres:postgresql"
+    solrsearch: "searchsolr:maincore"
 
 hooks:
     build: |

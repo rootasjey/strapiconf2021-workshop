@@ -1,3 +1,14 @@
 dbpostgres:
     type: postgresql:12
     disk: 256
+
+searchsolr:
+    type: solr:8.6
+    disk: 1024
+    configuration:
+        cores:
+            maincore:
+                conf_dir: !archive "solr"
+        endpoints:
+            main:
+                core: maincore
