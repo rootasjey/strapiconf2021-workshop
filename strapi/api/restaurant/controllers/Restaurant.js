@@ -1,7 +1,6 @@
 module.exports = {
   find: async (ctx) => {
     let restaurants;
-    console.log("toto");
 
     if (ctx.query._q) {
       restaurants = await strapi.api.restaurant.services.restaurant.search(ctx.query);

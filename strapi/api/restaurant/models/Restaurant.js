@@ -14,6 +14,8 @@ module.exports = {
         before: {},
         after: result
       });
+
+      console.log("afterCreate");
     },
     async beforeUpdate(params, data){
       const [previous_] = await strapi.services.restaurant.find(params);
