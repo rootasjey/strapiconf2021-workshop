@@ -23,8 +23,8 @@ module.exports = {
       
       // Add a document.
       const addResult = await client.update({
-        id: "1234",
-        name: "Valentina Tereshkova",
+        "id": "1234",
+        "name": "Valentina Tereshkova",
       });
 
       // Flush writes so that we can query against them.
