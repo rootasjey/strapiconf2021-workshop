@@ -18,22 +18,17 @@ module.exports = {
         after: result
       });
 
-      console.log("afterCreate");
-      const client = new solr(config.formattedCredentials("solr", "solr-node"));
+      // console.log("afterCreate");
+      // const client = new solr(config.formattedCredentials("solr", "solr-node"));
       
-      // Add a document.
-      const addResult = await client.update({
-        id: 123,
-        name: "Valentina Tereshkova",
-      });
+      // // Add a document.
+      // const addResult = await client.update({
+      //   id: 123,
+      //   name: "Valentina Tereshkova",
+      // });
 
-      // Flush writes so that we can query against them.
-      await client.softCommit();
-      // try {
-        
-      // } catch (error) {
-      //   console.error(error);
-      // }
+      // // Flush writes so that we can query against them.
+      // await client.softCommit();
     },
     async beforeUpdate(params, data){
       const [previous_] = await strapi.services.restaurant.find(params);
